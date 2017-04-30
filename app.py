@@ -98,25 +98,47 @@ def makeWebhookResult(data):
         "source": "apiai-weather-webhook-sample"
     }
 
+
+
 ###### Recieve the action and set url, format the query, parse the response, form response, send it
 def bedProcessRequest(req):
     if req.get("result").get("action") != "bedsAvailable":
         return {}
-    baseurl = "http://104.131.45.105:8000/render/?target=center1.count&from=-1minutes&format=json"
-    result = urlopen(baseurl).read()
+    baseurl = "http://104.131.45.105:8000/render/?from=-1minutes&"
+    bed_query = makeBedQuery(req)
+    if bed_query is None:
+        return {}
+    bed_url = baseurl + urlencode({'target'= bed_query}) + "&format=json"
+    result = urlopen(bed_url).read()
     data = json.loads(result)
-    res = bedWebhookResult(data)
+    res = makeWebhookResult(data)
     return res
 
-def bedWebhookResult(data):
-    result = data.get()
+
+def makeBedQuery(req):
+    result = req.get("result")
+    parameters = result.get("parameters")
+    center = parameters.get("location")
+    if center is None:
+        return None
+
+    return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + center + "')"
+
+
+def makeBedWebhookResult(data):
+    query = data.get('query')
+    if query is None:
+        return {}
+
+    result = query.get('count')
     if result is None:
         return {}
 
+
     # print(json.dumps(item, indent=4))
 
-    speech = "There are " + result.get() + \
-             " available! "
+    speech = "At " + location.get('center') + "there are " + result.get('text') + \
+             "beds available right now."
 
     print("Response:")
     print(speech)
@@ -126,12 +148,8 @@ def bedWebhookResult(data):
         "displayText": speech,
         # "data": data,
         # "contextOut": [],
-        "source": "apiai-beds-webhook"
+        "source": "apiai-weather-webhook-sample"
     }
-
-
-
-
 
 
 
