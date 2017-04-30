@@ -99,7 +99,7 @@ def makeWebhookResult(data):
     }
 
 ###### Recieve the action and set url, format the query, parse the response, form response, send it
-def processRequest(req):
+def bedProcessRequest(req):
     if req.get("result").get("action") != "bedsAvailable":
         return {}
     baseurl = "http://104.131.45.105:8000/render/?target=center1.count&from=-1minutes"
