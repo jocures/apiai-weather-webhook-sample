@@ -34,7 +34,7 @@ def webhook():
     r.headers['Content-Type'] = 'application/json'
     return r
 
-
+###### Recieve the action and set url, format the query, parse the response, form response, send it
 def processRequest(req):
     if req.get("result").get("action") != "yahooWeatherForecast":
         return {}
@@ -84,7 +84,7 @@ def makeWebhookResult(data):
 
     # print(json.dumps(item, indent=4))
 
-    speech = "Today in " + location.get('city') + ": " + condition.get('text') + \
+    speech = "There are " + location.get('city') + ": " + condition.get('text') + \
              ", the temperature is " + condition.get('temp') + " " + units.get('temperature')
 
     print("Response:")
@@ -97,6 +97,57 @@ def makeWebhookResult(data):
         # "contextOut": [],
         "source": "apiai-weather-webhook-sample"
     }
+
+###### Recieve the action and set url, format the query, parse the response, form response, send it
+def processRequest(req):
+    if req.get("result").get("action") != "bedsAvailable":
+        return {}
+    baseurl = "http://104.131.45.105:8000/render/?target=center1.count&from=-1minutes"
+    query = makeQuery(req)
+    if query is None:
+        return {}
+    bed_url = baseurl + "&format=json"
+    result = urlopen(bed_url).read()
+    data = json.loads(result)
+    res = bedWebhookResult(data)
+    return res
+
+
+def makeQuery(req):
+    result = req.get("result")
+
+
+def bedWebhookResult(data):
+    query = data.get('query')
+    if query is None:
+        return {}
+
+    result = query.get('results')
+    if result is None:
+        return {}
+
+    # print(json.dumps(item, indent=4))
+
+    speech = "There are " + result.get('results') + \
+             " available! "
+
+    print("Response:")
+    print(speech)
+
+    return {
+        "speech": speech,
+        "displayText": speech,
+        # "data": data,
+        # "contextOut": [],
+        "source": "apiai-beds-webhook"
+    }
+
+
+
+
+
+
+
 
 
 if __name__ == '__main__':
