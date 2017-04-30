@@ -108,10 +108,10 @@ def bedProcessRequest(req):
     bed_query = makeBedQuery(req)
     if bed_query is None:
         return {}
-    bed_url = baseurl + urlencode({'target'= bed_query}) + "&format=json"
+    bed_url = baseurl + urlencode({'target'= bed_query}) + ".count&format=json"
     result = urlopen(bed_url).read()
     data = json.loads(result)
-    res = makeWebhookResult(data)
+    res = makeBedWebhookResult(data)
     return res
 
 
@@ -122,22 +122,18 @@ def makeBedQuery(req):
     if center is None:
         return None
 
-    return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + center + "')"
+    return center
 
 
 def makeBedWebhookResult(data):
-    query = data.get('query')
-    if query is None:
-        return {}
-
-    result = query.get('count')
-    if result is None:
+    count = data.get()
+    if count is None:
         return {}
 
 
     # print(json.dumps(item, indent=4))
 
-    speech = "At " + location.get('center') + "there are " + result.get('text') + \
+    speech = "At Helping Up Mission" + "there are " + count.get('text') + \
              "beds available right now."
 
     print("Response:")
