@@ -102,33 +102,20 @@ def makeWebhookResult(data):
 def bedProcessRequest(req):
     if req.get("result").get("action") != "bedsAvailable":
         return {}
-    baseurl = "http://104.131.45.105:8000/render/?target=center1.count&from=-1minutes"
-    query = makeQuery(req)
-    if query is None:
-        return {}
-    bed_url = baseurl + "&format=json"
-    result = urlopen(bed_url).read()
+    baseurl = "http://104.131.45.105:8000/render/?target=center1.count&from=-1minutes&format=json"
+    result = urlopen(baseurl).read()
     data = json.loads(result)
     res = bedWebhookResult(data)
     return res
 
-
-def makeQuery(req):
-    result = req.get("result")
-
-
 def bedWebhookResult(data):
-    query = data.get('query')
-    if query is None:
-        return {}
-
-    result = query.get('results')
+    result = data.get()
     if result is None:
         return {}
 
     # print(json.dumps(item, indent=4))
 
-    speech = "There are " + result.get('results') + \
+    speech = "There are " + result.get() + \
              " available! "
 
     print("Response:")
