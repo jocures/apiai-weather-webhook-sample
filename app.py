@@ -100,52 +100,6 @@ def makeWebhookResult(data):
 
 
 
-###### Recieve the action and set url, format the query, parse the response, form response, send it
-def bedProcessRequest(req):
-    if req.get("result").get("action") != "bedsAvailable":
-        return {}
-    baseurl = "http://104.131.45.105:8000/render/?from=-1minutes&"
-    bed_query = makeBedQuery(req)
-    if bed_query is None:
-        return {}
-    bed_url = baseurl + urlencode({'target'= bed_query}) + ".count&format=json"
-    result = urlopen(bed_url).read()
-    data = json.loads(result)
-    res = makeBedWebhookResult(data)
-    return res
-
-
-def makeBedQuery(req):
-    result = req.get("result")
-    parameters = result.get("parameters")
-    center = parameters.get("location")
-    if center is None:
-        return None
-
-    return center
-
-
-def makeBedWebhookResult(data):
-    count = data.get()
-    if count is None:
-        return {}
-
-
-    # print(json.dumps(item, indent=4))
-
-    speech = "At Helping Up Mission" + "there are " + count.get('text') + \
-             "beds available right now."
-
-    print("Response:")
-    print(speech)
-
-    return {
-        "speech": speech,
-        "displayText": speech,
-        # "data": data,
-        # "contextOut": [],
-        "source": "apiai-weather-webhook-sample"
-    }
 
 
 
